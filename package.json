@@ -1,0 +1,24 @@
+{
+  "name": "@vitiacare/vitiacare_sdk_js",
+  "version": "1.0.2",
+  "description": "SDK to connect js-based apps to Vitia's Health API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VITiaCARE/vitiacare_sdk_js.git"
+  },
+  "keywords": [
+    "health",
+    "vitia",
+    "vitiacare"
+  ],
+  "author": "masanchezvega",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/VITiaCARE/vitiacare_sdk_js/issues"
+  },
+  "homepage": "https://github.com/VITiaCARE/vitiacare_sdk_js#readme"
+}
