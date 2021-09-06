@@ -614,9 +614,15 @@ class Vital extends vitiaObject {
 }
 
 class Measurement extends vitiaObject {
-  async prepare (store) {
-    super.prepare({obj_type:'record_vital'}, store);
+
+  constructor (api_url, token_bearer,{user_token="", user_id="", search_params={}, file_type=""}={}) {
+    super(api_url, token_bearer, {obj_type:"record_vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
   }
+
+  async prepare ({user_token="", user_id="", search_params={}, file_type=""}) {
+    super.prepare({obj_type:"record_vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+  }
+
 
   async measureByName(name, user_id=null, total=1, conf=null) {
     if(conf !== null) this.prepare(conf);
