@@ -2,7 +2,7 @@ const { make_request_from_object } = require('../helpers/request');
 
 class vitiaObject {  
 
-  constructor (api_url, token_bearer, obj_type="", user_token="", user_id="", search_params="", file_type="") {
+  constructor (api_url, token_bearer,{obj_type="", user_token="", user_id="", search_params={}, file_type=""}={}) {
     this.error_codes = {
       NOT_READY: 1,
       REQUEST_ERROR: 2,
@@ -24,6 +24,8 @@ class vitiaObject {
     this.staged_changes = {};
     this.stagging = false;
     this.multi = false;
+
+
     this.api_url = api_url;  
     this.token_bearer = token_bearer;  
     this.user_token = user_token;  
@@ -40,40 +42,30 @@ class vitiaObject {
     this.ready = true;
   }
 
-  async prepare (obj_type="", user_token="", user_id="", search_params="", file_type="", config_obj=null) {
-      if (config_obj !== null){
-        this.user_token = config_obj.user_token;  
-        this.user_id = config_obj.user_id;  
-        this.obj_type = config_obj.obj_type || '';
-        this.file_type = config_obj.file_type || '';
-        this.search_params = config_obj.search_params || {};
-      } else {
-        this.user_token = user_token;  
-        this.user_id = user_id;  
-        this.obj_type = obj_type || '';
-        this.file_type = file_type || '';
-        this.search_params = search_params || {};
-      }
-      this.headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.token_bearer}`,
-        'UserToken' : this.user_token,
-        'UserId' : this.user_id
-        };
-      this.ready = true;
+  async prepare ({obj_type="", user_token="", user_id="", search_params={}, file_type=""}) {
+    this.user_token = (user_token!=="") ? user_token : this.user_token;
+    this.user_id = (user_id!=="") ? user_id : this.user_id;
+    this.obj_type = (obj_type!=="") ? obj_type : this.obj_type;
+    this.file_type = (file_type!=="") ? file_type : this.file_type;
+    this.search_params = (search_params!=={}) ? search_params : this.search_params;
+    this.headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.token_bearer}`,
+      'UserToken' : this.user_token,
+      'UserId' : this.user_id
+      };
+    this.ready = true;
   }
    
   getStore(){
     return {
-      state: {
-        api: {
-          bearer : this.token_bearer
-        },
-        session: {
-          token: this.user_token,
-          user: this.user_id
-        }
-      }
+      api_url:this.api_url,
+      token_bearer:this.token_bearer,
+      user_token:this.user_token,
+      user_id:this.user_id,
+      obj_type:this.obj_type,
+      file_type:this.file_type,
+      search_params:this.search_params
     }
   }
 
@@ -88,10 +80,10 @@ class vitiaObject {
     let resp = await fetch(request).then((ans) => {
       switch (ans.status) {
         case 200:
-          return ans.json().res;
+          return ans.json();
         default:
           console.debug(ans)
-          return `HTTP Error: ${ans.status}` 
+          return `HTTP Error: ${ans.status}`  
       }
     }).catch(() => "Error!");
     return resp;
@@ -106,19 +98,23 @@ class vitiaObject {
     if(conf !== null) this.prepare(conf);
     if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
     let config = {
-        baseURL: process.env.baseUrl,
+        baseURL: this.api_url,
         url:  `scheme/${this.obj_type}`,
         method: 'GET',
         headers: this.headers,
     };
-    await axios.request(config)
-    .then((data) => {
-      this.schema = data.data.schema.map((e) => e);
-      if(after_load_hook !== null) after_load_hook(this.schema);
-      return {error: false};
-    }, (err) => {
-      return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
-    });
+    const request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          this.schema = await ans.json().then((d) => d.schema.map((e) => e));
+          if(after_load_hook !== null) after_load_hook(this.schema);
+          return {error: false};
+        default:
+          console.debug(ans)
+          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: ans}; 
+      }
+    }).catch(() => "Error!");
   }
 
   async loadAttributes(conf=null, after_load_hook=null){
@@ -128,26 +124,29 @@ class vitiaObject {
     let prom ={};
     let promises = [];
     let tmp_attributes = {};
-    // this.schema.filter((e) => e.type==='options' && (!this.stagging || (Object.keys(this.staged_changes).includes(e.name) && this.staged_changes[e.name]))).forEach((e) => {
-      this.schema.filter((e) => e.type==='options').forEach((e) => {
+    var request;
+    this.schema.filter((e) => e.type==='options').forEach((e) => {
       if (e.options.type==='fixed') {
         this.attributes[e.name] = e.options.detail;
       } else {
         let a = Object.assign({}, this.value);
         let p = Object.assign(a, e.options);
         let config = {
-            baseURL: process.env.baseUrl,
+            baseURL: this.api_url,
             url:  `schemeoptions`,
             method: 'POST',
             headers: this.headers,
             data: JSON.stringify(p),
         };
-        prom = axios.request(config)
-        .then((data) => {
-          this.attributes[e.name] = data.data.options;
-        }, () => {
-          res = false;
-        });
+        request = make_request_from_object(config);
+        prom = fetch(request).then(async (ans) => {
+          switch (ans.status) {
+            case 200:
+              this.attributes[e.name] = await ans.json().then((d) => d.options.map((e) => e));
+            default:
+              console.debug(ans)
+          }
+        }).catch(() => "Error!");
         promises.push(prom);
       }
     });
@@ -177,44 +176,53 @@ class vitiaObject {
       obj_to_create = {};
       Object.assign(obj_to_create, this.value);
     }
-    this.config = {
-        baseURL: api_url,
+    let config = {
+        baseURL: this.api_url,
         url: `${this.obj_type}`,
         method: 'PUT',
         headers: this.headers,
         data: JSON.stringify(obj_to_create),
     }
-    return axios.request(this.config)
-    .then(async (data) => {
-      if(obj_to_create!== null) Object.assign(this.value, obj_to_create);
-      this.value._key = data.data.o_id;
-      Object.assign(this.holder, this.value);
-      this.stagging = false;
-      if(after_load_hook !== null) after_load_hook(this.value);
-      return {error: false, id:data.data.o_id};
-    }, (err) => {
-      return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
-    });
+    let request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          let data = await ans.json();
+          if(obj_to_create!== null) Object.assign(this.value, obj_to_create);
+          this.value._key = data.o_id;
+          Object.assign(this.holder, this.value);
+          this.stagging = false;
+          if(after_load_hook !== null) after_load_hook(this.value);
+          return {error: false, id: data.o_id};
+        default:
+          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: ans};
+      }
+    }).catch(() => "Error!");
   }
 
   async loadData({obj_id}, conf=null, after_load_hook=null) {
     if(conf !== null) this.prepare(conf);
     if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
-    this.config = {
-        baseURL: api_url,
-        url: `${this.obj_type}/${obj_id}`,
-        method: 'GET',
-        headers: this.headers,
+    let config = {
+      baseURL: this.api_url,
+      url: `${this.obj_type}/${obj_id}`,
+      method: 'GET',
+      headers: this.headers,
     }
-    return await axios.request(this.config)
-    .then(async (data) => {
-      Object.assign(this.holder, data.data); 
-      Object.assign(this.value, data.data);
-      if(after_load_hook !== null) after_load_hook(this.value);
-      return {error: false};
-    }, (err) => {
-      return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
-    });
+    let request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          return ans.json().then(async (data) => {
+            Object.assign(this.holder, data); 
+            Object.assign(this.value, data);
+            if(after_load_hook !== null) after_load_hook(this.value);
+            return {error: false};
+          });
+        default:
+          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: ans};
+        }
+      }).catch(() => "Error!");
   }
 
   async update(obj_to_update=null, conf=null, after_load_hook=null) {
@@ -237,23 +245,26 @@ class vitiaObject {
       obj_to_update = {};
       Object.assign(obj_to_update, this.value);
     }
-    this.config = {
-        baseURL: api_url,
+    let config = {
+        baseURL: this.api_url,
         url: `${this.obj_type}`,
         method: 'PATCH',
         headers: this.headers,
         data: JSON.stringify(obj_to_update),
     }
-    return axios.request(this.config)
-    .then(async (data) => {
-      if(obj_to_update!== null) Object.assign(this.value, obj_to_update);
-      Object.assign(this.holder, this.value);
-      this.stagging = false;
-      if(after_load_hook !== null) after_load_hook(this.value);
-      return {error: false, id: this.value._key};
-    }, (err) => {
-      return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
-    });
+    let request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          if(obj_to_update!== null) Object.assign(this.value, obj_to_update);
+          Object.assign(this.holder, this.value);
+          this.stagging = false;
+          if(after_load_hook !== null) after_load_hook(this.value);
+          return {error: false, id: this.value._key};
+        default:
+          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: ans};
+        }
+      }).catch(() => "Error!");
   }
 
   async delete(obj_to_delete=null, conf=null, after_load_hook=null) {
@@ -266,20 +277,23 @@ class vitiaObject {
       obj_to_delete = {};
       Object.assign(obj_to_delete, this.value);
     }
-    this.config = {
-        baseURL: api_url,
+    let config = {
+        baseURL: this.api_url,
         url: `${this.obj_type}`,
         method: 'DELETE',
         headers: this.headers,
         data: JSON.stringify(obj_to_delete),
     }
-    return axios.request(this.config)
-    .then(async (data) => {
-      if(after_load_hook !== null) after_load_hook(obj_to_delete);
-      return {error: false};
-    }, (err) => {
-      return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
-    });
+    let request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          if(after_load_hook !== null) after_load_hook(obj_to_delete);
+          return {error: false};
+        default:
+          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: ans};
+        }
+      }).catch(() => "Error!");
   }
 
   async reset(attributes=null){
@@ -412,14 +426,19 @@ class vitiaObject {
           headers: this.headers,
           data: JSON.stringify(p),
       };
-      [valid,errlabel] = await axios.request(config)
-        .then((data) => {
-          valid = !data.data.exists && valid;
-          if (data.data.exists) errlabel += '<p>Ya se encuentra registrado</p>';
-          return [valid,errlabel];
-        }, (err) => {
-          return [false, '<p>Error al validar</p>'];
-      });
+      let request = make_request_from_object(config);
+      [valid,errlabel] = fetch(request).then(async (ans) => {
+        switch (ans.status) {
+          case 200:
+            return ans.json().then((data) => {
+              valid = !data.exists && valid;
+              if (data.exists) errlabel += '<p>Ya se encuentra registrado</p>';
+              return [valid,errlabel];
+            });
+          default:
+            return [false, '<p>Error al validar</p>'];
+          }
+        }).catch(() => [false, '<p>Error al validar</p>']);
     }
     let ageDifMs = null;
     let ageDate = null;
@@ -510,84 +529,87 @@ class vitiaObject {
 
 
 class User extends vitiaObject {
-  async prepare (store) {
-    super.prepare({obj_type:'user'}, store);
+
+  constructor (api_url, token_bearer,{user_token="", user_id="", search_params={}, file_type=""}={}) {
+    super(api_url, token_bearer, {obj_type:"user", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
   }
+
+  async prepare ({user_token="", user_id="", search_params={}, file_type=""}) {
+    super.prepare({obj_type:"user", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+  }
+
 
   async lastMeasure(vital_id, user_id=null,conf=null) {
     if(conf !== null) this.prepare(conf);
     if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
     let userid = (user_id !== null) ? user_id : this.user_id;
-    this.config = {
-        baseURL: api_url,
+    let config = {
+        baseURL: this.api_url,
         url: `measurement/latest/${userid}/${vital_id}`,
         method: 'GET',
         headers: this.headers,
     }
-    return await axios.request(this.config)
-    .then(async (data) => {
-      return {error: false, data: data.data.last_measure};
-    }, (err) => {
-      return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
-    });
+    let request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          return ans.json().then(async (data) => {
+            return {error: false, data: data.last_measure};
+          });
+        default:
+          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
+        }
+      }).catch(() => 'Error!');
   }
 
   async lastMeasures(vital_list, user_id=null,conf=null) {
     if(conf !== null) this.prepare(conf);
     if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
     let userid = (user_id !== null) ? user_id : this.user_id;
-    this.config = {
-        baseURL: api_url,
+    let config = {
+        baseURL: this.api_url,
         url: `measurement/latest/${userid}`,
         method: 'POST',
         headers: this.headers,
         data: JSON.stringify({vital_ids:vital_list}),
 
     }
-    return await axios.request(this.config)
-    .then(async (data) => {
-      return {error: false, data: data.data.last_measure};
-    }, (err) => {
-      return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
-    });
+    let request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          return ans.json().then(async (data) => {
+            return {error: false, data: data.last_measure};
+          });
+        default:
+          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
+        }
+      }).catch(() => 'Error!');
   }
 
 }
 
 class Vital extends vitiaObject {
-  async prepare (store) {
-    super.prepare({obj_type:'vital'}, store);
+
+  constructor (api_url, token_bearer,{user_token="", user_id="", search_params={}, file_type=""}={}) {
+    super(api_url, token_bearer, {obj_type:"vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+  }
+
+  async prepare ({user_token="", user_id="", search_params={}, file_type=""}) {
+    super.prepare({obj_type:"vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 
   async findByName(name,conf=null ){
     if(conf !== null) this.prepare(conf);
     if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
-    this.config = {
-      baseURL: api_url,
-      url: `${this.obj_type}`,
-      method: 'POST',
-      headers:{
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.token_bearer}`,
-        'UserToken' : this.user_token,
-        'UserId' : this.user_id
-      },
-      data: 
-        JSON.stringify({name: name, limit: 1})
-      }
-    return axios.request(this.config)
-      .then(async (data) => {
-        this.value = Object.assign({},data.data[0]);
-        return {error: false};
-      }, (err) => {
-        let err_code = err.response.data.id;
-        switch (err_code){
-          case 'object_not_found':
-            return {error: true, error_dec: 'No results', err_code: this.error_codes.OBJECT_NOT_FOUND, request_err: err};
-          default:
-            return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
-        }
-      });
+    const { Vitals } = require('./multi');
+    let vitals = new Vitals(this.api_url, this.token_bearer, this.getStore());
+    let search_params = {name: name};
+    let search_result = await vitals.loadData(search_params, false, 1);
+    if(search_result.error === false) {
+      this.value = Object.assign({},vitals.value[0]);
+    }
+    return search_result
   }
 }
 
@@ -604,59 +626,78 @@ class Measurement extends vitiaObject {
     vital.findByName(name);
     let userid = (user_id !== null) ? user_id : this.user_id;
     vital_id = vital.value._key;
-    return this.lastMeasure(vital_id, user_id);
+    return this.lastMeasure(vital_id, userid);
   }
 
   async lastMeasure(vital_id, user_id=null,conf=null) {
     if(conf !== null) this.prepare(conf);
     if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
     let userid = (user_id !== null) ? user_id : this.user_id;
-    this.config = {
-        baseURL: api_url,
+    let config = {
+        baseURL: this.api_url,
         url: `measurement/latest/${userid}/${vital_id}`,
         method: 'GET',
         headers: this.headers,
     }
-    return await axios.request(this.config)
-    .then(async (data) => {
-      return {error: false, data: data.data.last_measure};
-    }, (err) => {
-      return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
-    });
+    let request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          return ans.json().then(async (data) => {
+            return {error: false, data: data.last_measure};
+          });
+        default:
+          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
+        }
+      }).catch(() => 'Error!');
   }
 }
 
 class Referral extends vitiaObject {
-  async prepare (store) {
-    super.prepare({obj_type:'invitation'}, store);
+
+  constructor (api_url, token_bearer,{user_token="", user_id="", search_params={}, file_type=""}={}) {
+    super(api_url, token_bearer, {obj_type:"invitation", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+  }
+
+  async prepare ({user_token="", user_id="", search_params={}, file_type=""}) {
+    super.prepare({obj_type:"invitation", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 
   async addReferral(referral_data, user_id=null,conf=null) {
     if(conf !== null) this.prepare(conf);
     if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
     let referral_dict = Object.assign(this.value, referral_data);
-    this.config = {
-        baseURL: api_url,
+    let config = {
+        baseURL: this.api_url,
         url: 'genReferral',
         method: 'PUT',
         headers: this.headers,
         data: JSON.stringify(referral_dict),
     }
-    return await axios.request(this.config)
-    .then(async (data) => {
-      Object.assign(this.value, data.data)
-      return {error: false, data: data.data};
-    }, (err) => {
-      let err_code = err.response.data.id;
-      switch (err_code){
-        case 'user_create_duplicateKey':
-          return {error: true, error_dec: 'Duplicate user', err_code: this.error_codes.CREATE_EXISTING_OBJECT, request_err: err};
+    let request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          return ans.json().then(async (data) => {
+            console.debug(data)
+            Object.assign(this.value, data)
+            return {error: false, data: data};
+          });
         default:
-          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
+          return ans.json().then(async (data) => {
+            let err_code = data.id;
+            switch (err_code){
+              case 'user_create_duplicateKey':
+                console.debug({error: true, error_dec: 'Duplicate user', err_code: this.error_codes.CREATE_EXISTING_OBJECT, request_err: data})
+                return {error: true, error_dec: 'Duplicate user', err_code: this.error_codes.CREATE_EXISTING_OBJECT, request_err: data};
+              default:
+                console.debug({error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: data})
+                return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: data};
+            }
+          });
       }
-    });
+    }).catch(() => 'Error!');
   }
-
 }
 
 
