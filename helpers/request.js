@@ -3,7 +3,9 @@ function make_url(base, path=[], query={}) {
     var url_base = base;
     var url_path = '';
     var url_query = '';
-    if(path && path.length > 0) url_path = path.join('/');
+    if(path && Array.isArray(path) && path.length > 0) url_path = path.join('/');
+    else if (path && (typeof path === 'string' || path instanceof String)) url_path = path
+    else path = '';
     if(url_base.endsWith('/')) url_base = url_base.substring(0,url_base.length-1) 
     if(url_path.startsWith('/')) url_path = url_path.substring(1, url_path.length)
     if(query && query !== {}) {
@@ -19,7 +21,7 @@ function make_url(base, path=[], query={}) {
     return url;
 }
 
-function make_request(url = '', path='', method= 'GET', payload={}, headers={}) {
+function make_request(url = '', path='', method= 'GET', payload=null, headers={}) {
     const request = new Request(make_url(url, path), {method: method, body: payload, headers:headers});
     return request
 }
