@@ -5,15 +5,15 @@ const {
     Measurement,
     Referral
   } =  require('./classes/single');
-
+  
   const {
     Vitals,
     Relations,
     Measurements,
     vitiaMultiObject
   } =  require('./classes/multi');
-
-module.exports = {
+  
+  module.exports = {
     Vitals,
     Relations,
     Measurements,
