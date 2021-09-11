@@ -1,4 +1,5 @@
 const { make_request_from_object } = require('../helpers/request');
+const { getLocation } = require('../functions/user_properties')
 
 class vitiaObject {  
 
@@ -25,21 +26,14 @@ class vitiaObject {
     this.stagging = false;
     this.multi = false;
 
-
     this.api_url = api_url;  
     this.token_bearer = token_bearer;  
+    this.obj_type = obj_type;  
     this.user_token = user_token;  
     this.user_id = user_id;  
-    this.obj_type = obj_type || '';
-    this.file_type = file_type || '';
-    this.search_params = search_params || {};
-    this.headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.token_bearer}`,
-      'UserToken' : this.user_token,
-      'UserId' : this.user_id
-      };
-    this.ready = true;
+    this.search_params = search_params;  
+    this.file_type = file_type;  
+    this.prepare ()
   }
 
   async prepare ({obj_type="", user_token="", user_id="", search_params={}, file_type=""}) {
@@ -52,7 +46,8 @@ class vitiaObject {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${this.token_bearer}`,
       'UserToken' : this.user_token,
-      'UserId' : this.user_id
+      'UserId' : this.user_id,
+      'User-Location' : getLocation()
       };
     this.ready = true;
   }

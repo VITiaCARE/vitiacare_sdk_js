@@ -1,5 +1,5 @@
 function getLocation() {
-    if (navigator.geolocation) {
+    if (navigator && navigator.geolocation) {
       pos = navigator.geolocation.getCurrentPosition(makePosition, makePositionError);
     } else { 
       pos = "Geolocation is not supported by this browser.";
@@ -8,7 +8,7 @@ function getLocation() {
   }
   
 function makePosition(position) {
-  return  [position.coords.latitude, position.coords.longitude];
+  return  `${position.coords.latitude},${position.coords.longitude}`;
 }
 
 function makePositionError(error) {
