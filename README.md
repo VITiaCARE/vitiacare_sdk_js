@@ -1,1 +1,1 @@
-# vitiacare_sdk_js
+# JS Based Vitiacare SDK
