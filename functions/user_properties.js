@@ -1,14 +1,17 @@
 
 async function getLocation() {
   var loc;
-  if (navigator && navigator.geolocation) {
-    console.log(navigator);
-    console.log(navigator.geolocation);
-    loc = await getPosition().then((pos) => makePosition(pos), (err) => makePositionError(err));
-  } else { 
-    loc = "Geolocation is not supported by this browser.";
+  try{
+    if (navigator && navigator !== undefined && navigator.geolocation) {
+      console.log(navigator);
+      console.log(navigator.geolocation);
+      loc = await getPosition().then((pos) => makePosition(pos), (err) => makePositionError(err));
+    } else { 
+      loc = "Geolocation is not supported by this browser.";
+    }
+  } catch {
+    loc = "Error getting browser location.";
   }
-  console.log(loc);
   return loc
 }
 
