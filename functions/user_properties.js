@@ -1,18 +1,27 @@
-function getLocation() {
-  if (navigator && navigator.geolocation) {
-    console.debug("Navnav")
-    console.debug(navigator.geolocation.getCurrentPosition((r) => r))
-    return navigator.geolocation.getCurrentPosition(makePosition, makePositionError);
-  } else { 
-    console.debug("Geolocation is not supported by this browser.")
-    return "Geolocation is not supported by this browser.";
-  }
 
+async function getLocation() {
+  var loc;
+  if (navigator && navigator.geolocation) {
+    console.log(navigator);
+    console.log(navigator.geolocation);
+    loc = await getPosition().then((pos) => makePosition(pos), (err) => makePositionError(err));
+  } else { 
+    loc = "Geolocation is not supported by this browser.";
+  }
+  console.log(loc);
+  return loc
+}
+
+async function getPosition() {
+  return new Promise((res, rej) => {
+      navigator.geolocation.getCurrentPosition(res, rej);
+  });
 }
 
 function makePosition(position) {
-console.debug(position)
-return  `${position.coords.latitude},${position.coords.longitude}`;
+  console.log(position);
+  console.log(`${position.coords.latitude},${position.coords.longitude}`);
+  return `${position.coords.latitude},${position.coords.longitude}`;
 }
 
 function makePositionError(error) {

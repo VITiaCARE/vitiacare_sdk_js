@@ -32,9 +32,7 @@ class vitiaObject {
     this.user_token = user_token;  
     this.user_id = user_id;  
     this.search_params = search_params;  
-    this.file_type = file_type;  
-    this.prepare ();
-    console.log(getLocation());
+    this.file_type = file_type;
   }
 
   async prepare ({obj_type="", user_token="", user_id="", search_params={}, file_type=""} = {}) {
@@ -43,14 +41,17 @@ class vitiaObject {
     this.obj_type = (obj_type!=="") ? obj_type : this.obj_type;
     this.file_type = (file_type!=="") ? file_type : this.file_type;
     this.search_params = (search_params!=={}) ? search_params : this.search_params;
+    let user_location = await getLocation();
     this.headers = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${this.token_bearer}`,
       'UserToken' : this.user_token,
       'UserId' : this.user_id,
-      'User-Location' : getLocation()
+      'User-Location' : user_location
       };
     this.ready = true;
+    console.log(this.headers);
+    return this.ready;
   }
    
   getStore(){
@@ -531,7 +532,7 @@ class User extends vitiaObject {
   }
 
   async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super.prepare({obj_type:"user", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+    await super.prepare({obj_type:"user", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 
 
@@ -592,7 +593,7 @@ class Vital extends vitiaObject {
   }
 
   async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super.prepare({obj_type:"vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+    await super.prepare({obj_type:"vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 
   async findByName(name,conf=null ){
@@ -616,7 +617,7 @@ class Measurement extends vitiaObject {
   }
 
   async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super.prepare({obj_type:"record_vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+    await super.prepare({obj_type:"record_vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 
 
@@ -662,7 +663,7 @@ class Referral extends vitiaObject {
   }
 
   async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super.prepare({obj_type:"invitation", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+    await super.prepare({obj_type:"invitation", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 
   async addReferral(referral_data, user_id=null,conf=null) {
