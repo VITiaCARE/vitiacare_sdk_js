@@ -59,6 +59,4 @@ test_obj.prepare().then((res) => {
 () => {
     console.log('Unexpected error');
 });
-
-
-``
+```
