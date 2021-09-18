@@ -1,9 +1,22 @@
 const {
-    vitiaObject,
-    User,
-    Vital,
-    Measurement,
-    Referral
+  vitiaObject,
+  User,
+  Vital,
+  Measurement,
+  Referral,
+  CommunicationPreference,
+  VitalsPreset,
+  FeedbackReport,
+  UserTool,
+  Profile_Status,
+  Intake,
+  Treatment_Step,
+  Intake_Frequency,
+  Treatment,
+  Drug,
+  Prescription,
+  Record,
+  Relation
   } =  require('./classes/single');
   
   const {
@@ -22,5 +35,18 @@ const {
     User,
     Vital,
     Measurement,
-    Referral
+    Referral,
+    CommunicationPreference,
+    VitalsPreset,
+    FeedbackReport,
+    UserTool,
+    Profile_Status,
+    Intake,
+    Treatment_Step,
+    Intake_Frequency,
+    Treatment,
+    Drug,
+    Prescription,
+    Record,
+    Relation
   }

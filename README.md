@@ -7,13 +7,13 @@
 
 * [Installation](#installation)
 * [Quick Start](#quick-start)
-* [Usage](#usage)
+<!-- * [Usage](#usage)
 * [Use Cases](#use-cases)
 * [Announcements](#announcements)
 * [How to Contribute](#contribute)
 * [Troubleshooting](#troubleshooting)
 * [About](#about)
-* [License](#license)
+* [License](#license) -->
 
 
 
@@ -48,15 +48,15 @@ const Module = require( '../index');
 
 let test_obj = new Module.vitiaObject('https://services.vitiacare.com', <YOUR-API-KEY>, obj_type="", user_token="", user_id="", search_params="", file_type="");
 
-test_obj.prepare().then((res) => {
-    if(res) {
-        let test = test_obj.test();
-        console.log(test);
-    } else {
-        console.log('Prepare error');
-    }
+test_obj.prepare().then(async (res) => {
+  if(res) {
+      let test = await test_obj.test();
+      console.log(test.res);
+  } else {
+      console.log('Prepare error');
+  }
 }, 
 () => {
-    console.log('Unexpected error');
+  console.log('Unexpected error');
 });
 ```
