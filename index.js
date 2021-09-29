@@ -16,14 +16,30 @@ const {
   Drug,
   Prescription,
   Record,
-  Relation
+  Relation,
+  Tutorial
   } =  require('./classes/single');
   
   const {
     Vitals,
     Relations,
     Measurements,
-    vitiaMultiObject
+    vitiaMultiObject,
+    Users,
+    Referrals,
+    CommunicationPreferences,
+    VitalsPresets,
+    FeedbackReports,
+    UserTools,
+    Profiles_Status,
+    Intakes,
+    Treatment_Steps,
+    Intake_Frequencies,
+    Treatments,
+    Drugs,
+    Prescriptions,
+    Records,
+    Tutorials
   } =  require('./classes/multi');
   
   module.exports = {
@@ -31,6 +47,21 @@ const {
     Relations,
     Measurements,
     vitiaMultiObject,
+    Users,
+    Referrals,
+    CommunicationPreferences,
+    VitalsPresets,
+    FeedbackReports,
+    UserTools,
+    Profiles_Status,
+    Intakes,
+    Treatment_Steps,
+    Intake_Frequencies,
+    Treatments,
+    Drugs,
+    Prescriptions,
+    Records,
+    Tutorials,
     vitiaObject,
     User,
     Vital,
@@ -48,5 +79,6 @@ const {
     Drug,
     Prescription,
     Record,
-    Relation
+    Relation,
+    Tutorial
   }

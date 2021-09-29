@@ -3,8 +3,6 @@ async function getLocation() {
   var loc;
   try{
     if (navigator && navigator !== undefined && navigator.geolocation) {
-      console.log(navigator);
-      console.log(navigator.geolocation);
       loc = await getPosition().then((pos) => makePosition(pos), (err) => makePositionError(err));
     } else { 
       loc = "Geolocation is not supported by this browser.";
@@ -22,8 +20,6 @@ async function getPosition() {
 }
 
 function makePosition(position) {
-  console.log(position);
-  console.log(`${position.coords.latitude},${position.coords.longitude}`);
   return `${position.coords.latitude},${position.coords.longitude}`;
 }
 

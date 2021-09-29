@@ -3,8 +3,8 @@ const { make_request_from_object } = require('../helpers/request');
 
  class vitiaMultiObject extends vitiaObject{  
 
-  constructor(api_url,token_bearer) {
-    super(api_url,token_bearer)
+  constructor({api_url=null, api_key=null,obj_type="", user_token="", user_id="", search_params={}, file_type=""}={api_url:"", api_key:"",obj_type:"", user_token:"", user_id:"", search_params:{}, file_type:""}){
+    super({api_url:api_url, api_key:api_key,obj_type:obj_type, user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
     this.value = [];
     this.holder = [];
     this.limit = 0;
@@ -38,7 +38,8 @@ const { make_request_from_object } = require('../helpers/request');
     status = await this.checkStatus(obj_to_create);
     await Promise.allSettled([status]);
     if(status !== true && status !== 'true') return {error: true, error_dec: 'Cannot store object with invalid state', err_code: this.error_codes.INVALID_STATE};
-    let new_obj = new vitiaObject(this.api_url, this.token_bearer,{obj_type:this.obj_type, user_token:this.user_token, user_id:this.user_id, search_params:this.search_params, file_type:this.file_type})
+    let new_obj = new vitiaObject(this.getStore())
+    await new_obj.prepare()
     await new_obj.loadSchema();
     return new_obj.create(obj_to_create).then((res) => {
       if(res.error === true) return res;
@@ -78,14 +79,15 @@ const { make_request_from_object } = require('../helpers/request');
     if(!Array.isArray(search_params)) this.search_params = [search_params];
     else this.search_params = search_params.map((e) => e);
     let tmp_value = (add===true) ? this.value : [];
+    var config;
     let results = this.search_params.map(async (param) => {
-      this.config = {
+      config = {
           baseURL: process.env.apiUrl,
           url: `${this.obj_type}`,
           method: 'POST',
           headers:{
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.token_bearer}`,
+            'Authorization': `Bearer ${this.api_key}`,
             'UserToken' : this.user_token,
             'UserId' : this.user_id
           },
@@ -116,7 +118,8 @@ const { make_request_from_object } = require('../helpers/request');
   async update(key, obj_to_update=null, conf=null, after_load_hook=null) {
     if(conf !== null) this.prepare(conf);
     if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
-    if(this.value.filter((e) => e._key === key).length <= 0) return {error: true, error_dec: 'Cannot find object with specified key', err_code: this.error_codes.OBJECT_NOT_FOUND};
+    let index =  this.value.map((e) => e._key).indexOf(key);
+    if(index <= 0) return {error: true, error_dec: 'Cannot find object with specified key', err_code: this.error_codes.OBJECT_NOT_FOUND};
     if(Array.isArray(obj_to_update)) {
       if(!obj_to_update.includes('_key')) obj_to_update.push('_key');
       let atts = obj_to_update.map((e) => e);
@@ -133,7 +136,8 @@ const { make_request_from_object } = require('../helpers/request');
     status = await this.checkStatus(obj_to_update);
     await Promise.allSettled([status]);
     if(status !== true && status !== 'true') return {error: true, error_dec: 'Cannot store object with invalid state', err_code: this.error_codes.INVALID_STATE};
-    let new_obj = new vitiaObject(this.api_url, this.token_bearer,{obj_type:this.obj_type, user_token:this.user_token, user_id:this.user_id, search_params:this.search_params, file_type:this.file_type})
+    let new_obj = new vitiaObject(this.getStore())
+    await new_obj.prepare()
     await new_obj.loadSchema();
     return new_obj.update(obj_to_update).then((res) => {
       if(res.error === true) return res;
@@ -203,7 +207,7 @@ const { make_request_from_object } = require('../helpers/request');
     if(this.value.filter((e) => e._key === key).length <= 0) return {error: true, error_dec: 'Cannot find object with specified key', err_code: this.error_codes.OBJECT_NOT_FOUND};
     let obj_to_delete = {};
     Object.assign(obj_to_delete, this.value.filter((e) => e._key === key)[0]);
-    this.config = {
+    let config = {
         baseURL: process.env.apiUrl,
         url: `${this.obj_type}`,
         method: 'DELETE',
@@ -230,12 +234,12 @@ const { make_request_from_object } = require('../helpers/request');
 
  class Measurements extends vitiaMultiObject {
 
-  constructor (api_url, token_bearer,{user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super(api_url, token_bearer, {obj_type:"record_vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+  constructor (api_url, api_key,{user_token="", user_id="", search_params={}, file_type=""}={}) {
+    super(api_url, api_key, {obj_type:"record_vitals", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
   }
 
-  async prepare ({user_token="", user_id="", search_params={}, file_type=""}) {
-    super.prepare({obj_type:"record_vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+  async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+    await super.prepare({obj_type:"record_vitals", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 
   async lastMeasures(vital_list, user_id=null,conf=null) {
@@ -266,12 +270,12 @@ const { make_request_from_object } = require('../helpers/request');
 
  class Vitals extends vitiaMultiObject {
 
-  constructor (api_url, token_bearer,{user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super(api_url, token_bearer, {obj_type:"vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+  constructor (api_url, api_key,{user_token="", user_id="", search_params={}, file_type=""}={}) {
+    super(api_url, api_key, {obj_type:"vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
   }
 
-  async prepare ({user_token="", user_id="", search_params={}, file_type=""}) {
-    super.prepare({obj_type:"vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+  async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+    await super.prepare({obj_type:"vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 
   async getBasicVitals(conf=null) {
@@ -284,12 +288,12 @@ const { make_request_from_object } = require('../helpers/request');
 
  class Relations extends vitiaMultiObject {
 
-  constructor (api_url, token_bearer,{user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super(api_url, token_bearer, {obj_type:"relation", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+  constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+    super({api_url:api_url, api_key:api_key, obj_type:"relation", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
   }
 
-  async prepare ({user_token="", user_id="", search_params={}, file_type=""}) {
-    super.prepare({obj_type:"relation", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+  async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+    await super.prepare({obj_type:"relation", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 
   async getRelations(user=null, type='any', conf=null) {
@@ -297,22 +301,200 @@ const { make_request_from_object } = require('../helpers/request');
     if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
     var search_params;
     let user_id = (user===null) ? this.user_id : user ;
-    if(type == 'in') { 
+    if(type === 'in') { 
       search_params= {_to: user_id};
-      await this.loadData(search_params);
-    } else if(type == 'out') {
+    } else if(type === 'out') {
       search_params= {_from: user_id};
-      await this.loadData(search_params);
     } else {
       search_params= [{_to: user_id}, {_from: user_id}];
-      await this.loadData(search_params);
     }
+    await this.loadData(search_params);
   }
+}
+
+class Users extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"user", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"user", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class Referrals extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"invitation", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"invitation", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class CommunicationPreferences extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"communication_preference", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"communication_preference", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class VitalsPresets extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"vitals_preset", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"vitals_preset", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class FeedbackReports extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"feedback", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"feedback", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class UserTools extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"user_tool", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"user_tool", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class Profiles_Status extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"profile_status", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"profile_status", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class Intakes extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"intake", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"intake", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class Treatment_Steps extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"intake_step", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"intake_step", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class Intake_Frequencies extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"intake_frequency", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"intake_frequency", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class Treatments extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"treatment", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"treatment", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class Drugs extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"drug", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"drug", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class Prescriptions extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"prescription", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"prescription", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class Records extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"record", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"record", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
+}
+
+class Tutorials extends vitiaMultiObject {
+
+ constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
+   super({api_url:api_url, api_key:api_key, obj_type:"tutorial", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
+ }
+
+ async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
+   await super.prepare({obj_type:"tutorial", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+ }
 }
 
 module.exports  ={ 
   Vitals,
   Relations,
   Measurements,
-  vitiaMultiObject
+  vitiaMultiObject,
+  Users,
+  Referrals,
+  CommunicationPreferences,
+  VitalsPresets,
+  FeedbackReports,
+  UserTools,
+  Profiles_Status,
+  Intakes,
+  Treatment_Steps,
+  Intake_Frequencies,
+  Treatments,
+  Drugs,
+  Prescriptions,
+  Records,
+  Tutorials
 }
