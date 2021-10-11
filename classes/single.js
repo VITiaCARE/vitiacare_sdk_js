@@ -640,7 +640,7 @@ class User extends vitiaObject {
       switch (ans.status) {
         case 200:
           return ans.json().then(async (data) => {
-            let res_url = new URL(data.data.url);
+            let res_url = new URL(data.url);
             return res_url.searchParams.get('token');
           });
         default:
