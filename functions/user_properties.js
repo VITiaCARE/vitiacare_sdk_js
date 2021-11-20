@@ -4,6 +4,8 @@ async function getLocation() {
   try{
     if (navigator && navigator !== undefined && navigator.geolocation) {
       loc = await getPosition().then((pos) => makePosition(pos), (err) => makePositionError(err));
+      // let skipPosPromise = Promise(() => setTimeout(() => {"User did not respond on time."}, 5000));
+      // loc = Promise.race(getPosPromise, skipPosPromise);
     } else { 
       loc = "Geolocation is not supported by this browser.";
     }
@@ -14,8 +16,13 @@ async function getLocation() {
 }
 
 async function getPosition() {
+  const options = {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 10000
+  };
   return new Promise((res, rej) => {
-      navigator.geolocation.getCurrentPosition(res, rej);
+      navigator.geolocation.getCurrentPosition(res, rej, options);
   });
 }
 

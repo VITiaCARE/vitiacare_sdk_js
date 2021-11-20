@@ -53,21 +53,21 @@ class vitiaObject {
     this.file_type = file_type;
   }
 
-  async prepare ({obj_type="", user_token="", user_id="", search_params={}, file_type=""} = {}) {
+  async prepare ({obj_type="", user_token="", user_id="", search_params={}, file_type=""} = {}, options={}) {
     this.user_token = (user_token!=="") ? user_token : this.user_token;
     this.user_id = (user_id!=="") ? user_id : this.user_id;
     this.obj_type = (obj_type!=="") ? obj_type : this.obj_type;
     this.file_type = (file_type!=="") ? file_type : this.file_type;
     this.search_params = (search_params!=={}) ? search_params : this.search_params;
-    let user_location = await getLocation();
     this.headers = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${this.api_key}`,
       'UserToken' : this.user_token,
       'UserId' : this.user_id,
-      'User-Location' : user_location
+      'User-Location' : null
       };
     this.ready = true;
+    // if(!options.skipLocation || options.skipLocation !== True) getLocation().then((user_location) => this.headers['User-Location'] = user_location);
     return this.ready;
   }
    
@@ -157,6 +157,7 @@ class vitiaObject {
           switch (ans.status) {
             case 200:
               this.attributes[e.name] = await ans.json().then((d) => d.options.map((e) => e));
+              break;
             default:
               console.debug(ans)
           }
@@ -513,6 +514,10 @@ class vitiaObject {
           break;
         }
     }
+    if((att.required != true && att.unique != true) && (val === null || val === '' || val === undefined)){
+      valid = null;
+      errlabel += '';
+    }
     if(store === true) this.status[att.name] = {valid: valid, error_label: errlabel};
     return {valid: valid, error_label: errlabel, attribute_name: att.name};
   }
@@ -647,6 +652,27 @@ class User extends vitiaObject {
           return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
         }
       }).catch(() => 'Error!');
+  }
+
+  async accessCode(){
+    let config = {
+      baseURL: process.env.baseUrl,
+      url: "oauth/accessToken",
+      method: "GET",
+      headers: this.headers,
+    };
+    let request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          return ans.json().then(async (data) => {
+            return data['Access-Token'];
+          });
+        default:
+          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
+        }
+      }).catch(() => 'Error!');
+
   }
 
 }
@@ -868,6 +894,46 @@ class Intake_Frequency extends vitiaObject {
 
   async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
     await super.prepare({obj_type:"intake_frequency", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
+  }
+
+  UTCTimes() {
+    this.adjustStartToUTC();
+    if(this.value.model === 'fixed_dates' ) {
+      var i;
+      var j;
+      for (i=0; i < this.value.selected_dates.length; i++){
+        for (j=0; j < this.value.selected_times.length; j++){
+          console.log(this.value.selected_dates[i], this.value.selected_times[j])
+          [this.value.selected_dates[i], this.value.selected_times[j]] = this.dateTimeToUTC(this.value.selected_dates[i], this.value.selected_times[j])
+          console.log(this.value.selected_dates[i], this.value.selected_times[j])
+        }
+      }
+    }
+  }
+
+  dateTimeToUTC(date,time) {
+    let datetimeUTC = `${date} ${time}`.toUTCDateFromISO();
+    let dateUTC = `${datetimeUTC.getUTCFullYear()}-${String(datetimeUTC.getUTCMonth()+1).padStart(2,'0')}-${String(datetimeUTC.getUTCDate()).padStart(2,'0')}`;
+    let timeUTC = `${String(datetimeUTC.getUTCHours()).padStart(2,'0')}:${String(datetimeUTC.getUTCMinutes()).padStart(2,'0')}`;
+
+    return [dateUTC, timeUTC]
+  }
+
+  adjustStartToUTC() {
+    
+    [this.value.start_date, this.value.start_time] = this.dateTimeToUTC(this.value.start_date, this.value.start_time)
+
+  }
+  getTimezoneOffset(){
+    var date = new Date();
+    var offset = date.getTimezoneOffset();
+    return offset * 60;
+  }
+  async create(obj_to_create=null, conf=null, after_load_hook=null) {
+    // this.UTCTimes();
+
+    if(!Object.keys(this.value).includes('timezone_offset') || this.value.timezone_offset == undefined || this.value.timezone_offset == null ) this.value.timezone_offset = this.getTimezoneOffset();
+    return super.create(obj_to_create, conf, after_load_hook);
   }
 }
 

@@ -54,7 +54,7 @@ const { make_request_from_object } = require('../helpers/request');
           this.holder.push(Object.assign(obj_to_create));
         }
         if(after_load_hook !== null) after_load_hook(this.value[(index === null) ? this.value.length : index]);
-        return {error: false, id: res.id};
+        return res;
       }
     });
   }
@@ -67,9 +67,11 @@ const { make_request_from_object } = require('../helpers/request');
     } else {
       list_to_create = this.value;
     }
-    return list_to_create.map((e) => {
-      return {res: this.create(null, e, null, after_load_hook)}
+    let prom = list_to_create.map(async (e) => {
+      return this.create(null, e, null, after_load_hook)
     });
+    Promise.allSettled(prom);
+    return prom;
   }
 
   async loadData(search_params=null, add=false, limit=null, conf=null, after_load_hook=null) {
@@ -398,6 +400,7 @@ class Intakes extends vitiaMultiObject {
  async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
    await super.prepare({obj_type:"intake", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
  }
+
 }
 
 class Treatment_Steps extends vitiaMultiObject {
@@ -413,6 +416,7 @@ class Treatment_Steps extends vitiaMultiObject {
 
 class Intake_Frequencies extends vitiaMultiObject {
 
+  
  constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
    super({api_url:api_url, api_key:api_key, obj_type:"intake_frequency", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
  }
@@ -420,6 +424,27 @@ class Intake_Frequencies extends vitiaMultiObject {
  async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
    await super.prepare({obj_type:"intake_frequency", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
  }
+
+ async createMulti(list_to_create=null, conf=null, after_load_hook=null) {
+  const { Intake_Frequency } = require('./single');
+  if(conf !== null) this.prepare(conf);
+  if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
+  if(list_to_create !== null){
+    list_to_create = list_to_create;
+  } else {
+    list_to_create = this.value;
+  }
+  const intake_frequency = new Intake_Frequency()
+
+  for(let i = 0; i < list_to_create.length; i++){
+    // intake_frequency.value = Object.assign({},list_to_create[i]);
+    // intake_frequency.UTCTimes();
+    // list_to_create[i] = Object.assign(list_to_create[i], intake_frequency.value);
+    if(!Object.keys(list_to_create[i]).includes('timezone_offset') || list_to_create[i].timezone_offset == undefined || list_to_create[i].timezone_offset == null ) list_to_create[i].timezone_offset = intake_frequency.getTimezoneOffset();
+  }
+
+  return super.createMulti(list_to_create, null, after_load_hook)
+}
 }
 
 class Treatments extends vitiaMultiObject {

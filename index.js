@@ -1,3 +1,30 @@
+
+String.prototype.toUTCDateFromISO = function() {
+  let parts = []
+  if(this.length >= 4) {
+      parts.push(this.substring(0,4))
+  }
+  if(this.length >= 7) {
+      parts.push(this.substring(5,7) - 1) 
+  }
+  if(this.length >= 10) {
+      parts.push(this.substring(8,10))
+  }
+  if(this.length >= 13) {
+      parts.push(this.substring(11,13))
+  }
+  if(this.length >= 16) {
+      parts.push(this.substring(14,16))
+  }
+  if(this.length >= 19) {
+      parts.push(this.substring(17,19))
+  }
+  if(this.length >= 26) {
+      parts.push(this.substring(20,26))
+  }
+  return new Date(...parts)
+}
+
 const {
   vitiaObject,
   User,
@@ -19,7 +46,7 @@ const {
   Relation,
   Tutorial
   } =  require('./classes/single');
-  
+
   const {
     Vitals,
     Relations,
