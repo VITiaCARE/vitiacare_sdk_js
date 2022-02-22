@@ -871,6 +871,39 @@ class Intake extends vitiaObject {
     super({api_url:api_url, api_key:api_key,obj_type:"intake", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
   }
 
+  async confirm(id=null, mode=true) {
+    if(id == null) id = this.value._key;
+    if(id == null) return {error: true, error_dec: 'No id or object given', err_code: this.error_codes.OBJECT_NOT_FOUND};;
+    let config = {        
+        baseURL: this.api_url,
+        url: `confirm_intake/${mode}/${id}`,
+        method: 'GET',
+        headers: this.headers,
+    };
+    let request = make_request_from_object(config);
+    return fetch(request).then(async (ans) => {
+      switch (ans.status) {
+        case 200:
+          return ans.json().then(async (data) => {
+            return {error: false, data: data};
+          });
+        default:
+          return ans.json().then(async (data) => {
+            let err_code = data.id;
+            switch (err_code){
+              default:
+                console.debug({error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: data})
+                return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: data};
+            }
+          });
+      }
+    }).catch(() => 'Error!');
+  }
+
+  unconfirm(id) {
+    this.confirm(id, false)
+  }
+
   async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
     await super.prepare({obj_type:"intake", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
