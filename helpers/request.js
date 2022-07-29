@@ -1,3 +1,4 @@
+
 function make_url(base, path=[], query={}) {
     var url;
     var url_base = base;
@@ -10,7 +11,7 @@ function make_url(base, path=[], query={}) {
     if(url_path.startsWith('/')) url_path = url_path.substring(1, url_path.length)
     if(query && query !== {}) {
         try {
-            let query_array = Object.entries(query).map((k,v) => `${k}=${v}`)
+            let query_array = Object.entries(query).map(([k,v]) => `${k}=${v}`)
             url_query = query_array.join('&') 
         } catch { 
             url_query = '' 
@@ -21,13 +22,19 @@ function make_url(base, path=[], query={}) {
     return url;
 }
 
-function make_request(url = '', path='', method= 'GET', payload=null, headers={}) {
-    const request = new Request(make_url(url, path), {method: method, body: payload, headers:headers});
-    return request
+async function make_request(url = '', path='', query={}, method= 'GET', payload=null, headers={}) {
+    let options = {method: method, headers:headers}
+    if(!['GET','HEAD'].includes(method)) options.body = JSON.stringify(payload)
+    let response = await fetch(make_url(url, path, query), (options)).catch((error) => {
+        console.debug(error);
+        return {name: "Network Error", status: 9000}
+    })
+    return response
 }
 
-function make_request_from_object(config){
-    return make_request(url=config.baseURL, path=config.url, method=config.method, payload=config.data, headers=config.headers);
+async function make_request_from_object(config){
+    let response = await make_request(url=config.url, path=config.path, query=config.query, method=config.method, payload=config.data, headers=config.headers);
+    return response;
 }
 
 module.exports = { make_url, make_request, make_request_from_object }

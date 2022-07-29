@@ -25,41 +25,49 @@ String.prototype.toUTCDateFromISO = function() {
   return new Date(...parts)
 }
 
+String.prototype.toTitle = function() {
+  return this.replace(/(^|\s)\S/g, function(t) { return t.toUpperCase() });
+}
+
 const {
   vitiaObject,
-  User,
   Vital,
   Measurement,
-  Referral,
   CommunicationPreference,
   VitalsPreset,
   FeedbackReport,
   UserTool,
   Profile_Status,
-  Intake,
   Treatment_Step,
   Intake_Frequency,
   Treatment,
   Drug,
-  Prescription,
   Record,
-  Relation,
+  
   Tutorial
-  } =  require('./classes/single');
+  } =  require('@vitiacare/vitiacare_sdk_js/classes/single/single');
 
-  const {
+const { User } = require('@vitiacare/vitiacare_sdk_js/classes/single/user')
+
+const { Intake } = require('@vitiacare/vitiacare_sdk_js/classes/single/intake')
+
+const { Prescription } = require('@vitiacare/vitiacare_sdk_js/classes/single/prescription')
+
+const { Relation } = require('@vitiacare/vitiacare_sdk_js/classes/single/relation')
+
+const { Message } = require('@vitiacare/vitiacare_sdk_js/classes/single/message')
+
+const { Referral } = require('@vitiacare/vitiacare_sdk_js/classes/single/referral')
+
+const {
     Vitals,
-    Relations,
     Measurements,
     vitiaMultiObject,
-    Users,
-    Referrals,
     CommunicationPreferences,
     VitalsPresets,
     FeedbackReports,
     UserTools,
     Profiles_Status,
-    Intakes,
     Treatment_Steps,
     Intake_Frequencies,
     Treatments,
@@ -67,9 +75,21 @@ const {
     Prescriptions,
     Records,
     Tutorials
-  } =  require('./classes/multi');
+  } =  require('@vitiacare/vitiacare_sdk_js/classes/multi/multi');
   
-  module.exports = {
+const { Intakes } = require('@vitiacare/vitiacare_sdk_js/classes/multi/intake')
+
+const { Relations } = require('@vitiacare/vitiacare_sdk_js/classes/multi/relation')
+
+const { Messages } = require('@vitiacare/vitiacare_sdk_js/classes/multi/message')
+
+const { Users } = require('@vitiacare/vitiacare_sdk_js/classes/multi/user')
+
+const { Referrals } = require('@vitiacare/vitiacare_sdk_js/classes/multi/referral')
+
+module.exports = {
+    Message,
+    Messages,
     Vitals,
     Relations,
     Measurements,

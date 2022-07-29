@@ -1,4 +1,5 @@
-function toUTCDateFromISO(dateString) {
+function toUTCDateFromISO(dateString, timezonediff_mins = null) {
+    if (timezonediff_mins === null) timezonediff_mins = new Date().getTimezoneOffset();
     let parts = []
     if(dateString.length >= 4) {
         parts.push(dateString.substring(0,4))
@@ -21,7 +22,10 @@ function toUTCDateFromISO(dateString) {
     if(dateString.length >= 26) {
         parts.push(dateString.substring(20,26))
     }
-    return new Date(...parts)
+    let base_date = new Date(...parts);
+    let offset_date = new Date(0);
+    offset_date.setMinutes(-1*timezonediff_mins);
+    return new Date(base_date.getTime() + offset_date.getTime());
 }
 
 
