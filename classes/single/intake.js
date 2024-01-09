@@ -1,10 +1,10 @@
-import { vitiaObject } from './single';
+import { patientObject } from '@vitiacare/vitiacare_sdk_js/classes/single/patientObject';
 import { toUTCDateFromISO } from '../../helpers/datetime';
 
-export class Intake extends vitiaObject {
+export class Intake extends patientObject {
 
-  constructor(api_url = null, api_key = null, intake_id = null, access_token = null) {
-    super(api_url, api_key);
+  constructor(userId, api_url = null, api_key = null, intake_id = null, access_token = null) {
+    super(userId, api_url, api_key);
     this.set_type('intake');
     if (intake_id !== null) {
       this.set_id(intake_id);
@@ -20,13 +20,15 @@ export class Intake extends vitiaObject {
   }
   
 
-  async confirm(id = null, mode = true) {
-    let obj_id = (id !== null) ? id : this.obj_id;
-    await this.send_request('POST', `confirm_intake/${obj_id}`, { 'mode': mode });
+  async confirm(id = null, mode = null) {
+    let obj_id = (id !== null) ? id : this.get_id();
+    await this.send_request('POST', `patient/${this.getPatientId()}/${this.obj_type}/${obj_id}/confirm`, { 'mode': mode });
     switch (this.response.status) {
       case 200:
-        this.response.error = false
-        this.value.taken = mode;
+        await this.response.json().then(async (data) => {
+          this.value.taken = data.current_status;
+          this.response.error = false
+        });
       default:
         this.response.error = true
         return {}

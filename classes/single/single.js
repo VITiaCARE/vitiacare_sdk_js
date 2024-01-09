@@ -43,6 +43,7 @@ class vitiaObject extends Interface{
     this.holder = {};
     this.schema = [];
     this.schema_options = {};
+    this.response = {};
     this.status = {}
     this.attributes = {};
     this.staged_changes = {};
@@ -59,6 +60,11 @@ class vitiaObject extends Interface{
     this.update_headers({'UserToken':user_token})
   }
 
+  get_user_token() {
+    if(this.user_token == null || this.user_token == undefined) return '';
+    return this.user_token;
+  }
+
   set_location(lat, long){
     let loc = [lat,long];
     this.update_headers({'User-Location':loc})
@@ -69,14 +75,30 @@ class vitiaObject extends Interface{
     this.update_headers({'UserId':user_id})
   }
 
+  setForceSync(force) {
+    this.update_headers({'Force-Sync':force})
+  }
+
+  set_relation_id(rel_id) {
+    if (rel_id && rel_id != null && rel_id != undefined){ 
+      this.rel_id = rel_id;
+      this.update_headers({ 'Relation-Id': rel_id })
+    }
+  }
+
+
   set_id(obj_id) {
     this.obj_id = obj_id;
     this.value._key = obj_id;
   }
 
+  get_access_token() {
+    if(this.access_token == null || this.access_token == undefined) return '';
+    return this.access_token;
+  }
   set_access_token(access_token){
-    this.access_token = access_token;
-    this.update_headers(access_token);
+    this.access_token = {'Access-Token':access_token};
+    this.update_headers({'Access-Token':access_token});
   }
   
   get_id(){
@@ -170,11 +192,13 @@ async loadData(obj_id, after_load_hook=null) {
         await Object.assign(this.holder, data); 
         await Object.assign(this.value, data);
         this.set_id(this.value._key);
-        if(after_load_hook !== null) after_load_hook(this.value);
+        if(after_load_hook !== null){ after_load_hook(this.value);}
         this.response.error = false;
       });
+      break;
     default:
       this.response.error = true;    
+      break;
     }
   }
 
@@ -198,7 +222,7 @@ async loadData(obj_id, after_load_hook=null) {
       case 200:
         this.response.error = false;
         await this.response.json().then((j) => Object.assign(this.value, j));
-        if(after_load_hook !== null) after_load_hook(this.value);
+        if(after_load_hook != null) after_load_hook(this.value);
         break;
       default:
         this.response.error = true;    
@@ -493,76 +517,6 @@ class Translation extends vitiaObject {
   }
 }
 
-class Vital extends vitiaObject {
-
-  constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super({api_url:api_url, api_key:api_key,obj_type:"vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
-  }
-
-  async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
-    await super.prepare({obj_type:"vital", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
-  }
-
-  async findByName(name,conf=null ){
-    if(conf !== null) this.prepare(conf);
-    if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
-    const { Vitals } = require('../multi/multi');
-    let vitals = new Vitals(this.api_url, this.api_key, this.getStore());
-    let search_params = {name: name};
-    let search_result = await vitals.loadData(search_params, false, 1);
-    if(search_result.error === false) {
-      this.value = Object.assign({},vitals.value[0]);
-    }
-    return search_result
-  }
-}
-
-class Measurement extends vitiaObject {
-
-  constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super({api_url:api_url, api_key:api_key,obj_type:"record_vitals", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
-  }
-
-  async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
-    await super.prepare({obj_type:"record_vitals", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
-  }
-
-
-  async measureByName(name, user_id=null, total=1, conf=null) {
-    if(conf !== null) this.prepare(conf);
-    if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
-    let vital = new Vital();
-    vital.prepare(this.getStore());
-    vital.findByName(name);
-    let userid = (user_id !== null) ? user_id : this.user_id;
-    vital_id = vital.value._key;
-    return this.lastMeasure(vital_id, userid);
-  }
-
-  async lastMeasure(vital_id, user_id=null,conf=null) {
-    if(conf !== null) this.prepare(conf);
-    if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
-    let userid = (user_id !== null) ? user_id : this.user_id;
-    let config = {
-        baseURL: this.api_url,
-        url: `measurement/latest/${userid}/${vital_id}`,
-        method: 'GET',
-        headers: this.headers,
-    }
-    let request = make_request_from_object(config);
-    return fetch(request).then(async (ans) => {
-      switch (ans.status) {
-        case 200:
-          return ans.json().then(async (data) => {
-            return {error: false, data: data.last_measure};
-          });
-        default:
-          return {error: true, error_dec: 'Request responded with error, check request_err for details', err_code: this.error_codes.REQUEST_ERROR, request_err: err};
-        }
-      }).catch(() => 'Error!');
-  }
-}
-
 class CommunicationPreference extends vitiaObject {
 
   constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
@@ -696,40 +650,6 @@ class Intake_Frequency extends vitiaObject {
   }
 }
 
-class Treatment extends vitiaObject {
-
-  constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super({api_url:api_url, api_key:api_key,obj_type:"treatment", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
-  }
-
-  async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
-    await super.prepare({obj_type:"treatment", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
-  }
-}
-
-class Drug extends vitiaObject {
-
-  constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super({api_url:api_url, api_key:api_key,obj_type:"drug", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
-  }
-
-  async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
-    await super.prepare({obj_type:"drug", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
-  }
-}
-
-class Record extends vitiaObject {
-
-  constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
-    super({api_url:api_url, api_key:api_key,obj_type:"record", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
-  }
-
-  async prepare ({user_token="", user_id="", search_params={}, file_type=""}={}) {
-    await super.prepare({obj_type:"record", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
-  }
-}
-
-
 class Tutorial extends vitiaObject {
 
   constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
@@ -769,8 +689,6 @@ class Tutorial extends vitiaObject {
 
 module.exports = {
   vitiaObject,
-  Vital,
-  Measurement,
   CommunicationPreference,
   VitalsPreset,
   FeedbackReport,
@@ -778,9 +696,6 @@ module.exports = {
   Profile_Status,
   Treatment_Step,
   Intake_Frequency,
-  Treatment,
-  Drug,
-  Record,
   Tutorial,
   Translation
 }

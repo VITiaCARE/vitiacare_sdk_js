@@ -1,10 +1,11 @@
 {
   "name": "@vitiacare/vitiacare_sdk_js",
-  "version": "2.0.0alpha5",
+  "version": "2.1.0alpha13",
   "description": "SDK to connect js-based apps to Vitia's Health API",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
   },
   "repository": {
     "type": "git",

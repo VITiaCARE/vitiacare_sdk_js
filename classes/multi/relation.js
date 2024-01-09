@@ -1,25 +1,24 @@
-import { vitiaMultiObject } from './multi';
-import { toUTCDateFromISO } from '../../helpers/datetime';
+import { patientObjects } from '@vitiacare/vitiacare_sdk_js/classes/multi/patientObjects';
 
-export class Relations extends vitiaMultiObject {
+export class Relations extends patientObjects {
 
-  constructor(api_url, api_key) {
-    super(api_url, api_key);
+  constructor(userId, api_url, api_key) {
+    super(userId, api_url, api_key);
     this.set_type('relation');
   }
 
-  async loadData(search_params, add=true, after_load_hook = null) {
-    await super.loadData(search_params, add);
-    for(var i = 0; i < this.value.length; i++){
-        if(this.value[i]._from === this.user_id){
-          Object.assign(this.value[i], {related_user:this.value[i].obj_to, direction: 'out'})
-        } else {
-          Object.assign(this.value[i], {related_user:this.value[i].obj_from, direction: 'in'})
-        }
-    }
-    if(after_load_hook !== null) await after_load_hook(this.value);
-    return this.value;
-  }
+  // async loadData(search_params, add=true, after_load_hook = null) {
+  //   await super.loadData(search_params, add);
+  //   for(var i = 0; i < this.value.length; i++){
+  //       if(this.value[i]._from === this.user_id){
+  //         Object.assign(this.value[i], {related_user:this.value[i].obj_to, direction: 'out'})
+  //       } else {
+  //         Object.assign(this.value[i], {related_user:this.value[i].obj_from, direction: 'in'})
+  //       }
+  //   }
+  //   if(after_load_hook !== null) await after_load_hook(this.value);
+  //   return this.value;
+  // }
 
   async getRelations(user = null, type = 'any') {
     var search_params;

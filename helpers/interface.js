@@ -26,13 +26,13 @@ class Interface{
         }
     }
 
-    async send_request(method='GET', path='', json=null, params={}, timeout=null){
+    async send_request(method='GET', path='', json=null, params={}, timeout=null, send_as_form=false){
         this.method = method
         this.path = path
         this.json = json
         this.params = params
         this.timeout = timeout
-        this.response = await make_request(this.host, this.path, this.params, this.method, this.json, this.headers) 
+        this.response = await make_request(this.host, this.path, this.params, this.method, this.json, this.headers, send_as_form) 
     }
 
     async test () {

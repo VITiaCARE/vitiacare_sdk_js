@@ -1,4 +1,4 @@
-import { vitiaMultiObject } from './multi';
+import { vitiaMultiObject } from '@vitiacare/vitiacare_sdk_js/classes/multi/multi';
 
 export class Users extends vitiaMultiObject {
 
