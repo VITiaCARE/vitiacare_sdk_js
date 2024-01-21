@@ -82,6 +82,14 @@ const { Address } = require('@vitiacare/vitiacare_sdk_js/classes/single/address'
 
 const { ProfileStatus }  = require('@vitiacare/vitiacare_sdk_js/classes/single/profileStatus')
 
+const { Appointment }  = require('@vitiacare/vitiacare_sdk_js/classes/single/appointment')
+
+const { ActionFlow }  = require('@vitiacare/vitiacare_sdk_js/classes/single/actionFlow')
+
+const { Question }  = require('@vitiacare/vitiacare_sdk_js/classes/single/question')
+
+const { QuestionAnswer }  = require('@vitiacare/vitiacare_sdk_js/classes/single/questionAnswer')
+
 const {
     vitiaMultiObject,
     CommunicationPreferences,
@@ -125,6 +133,10 @@ const { Diagnostics } = require('@vitiacare/vitiacare_sdk_js/classes/multi/diagn
 const { Addresses } = require('@vitiacare/vitiacare_sdk_js/classes/multi/address')
 
 const { Purchases } = require('@vitiacare/vitiacare_sdk_js/classes/multi/purchase')
+
+const { Appointments } = require('@vitiacare/vitiacare_sdk_js/classes/multi/appointment')
+
+const { ActionFlows }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/actionFlow')
 
 module.exports = {
     Diagnostics,
@@ -177,5 +189,11 @@ module.exports = {
     Address,
     Addresses,
     Purchases,
-    ProfileStatus
+    ProfileStatus,
+    Appointment,
+    Appointments,
+    ActionFlow,
+    ActionFlows,
+    Question,
+    QuestionAnswer
   }

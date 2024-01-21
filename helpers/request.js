@@ -31,7 +31,13 @@ async function make_request(url = '', path='', query={}, method= 'GET', payload=
             options.body = JSON.stringify(payload)
         // }
     }
-    let response = await fetch(make_url(url, path, query), (options)).catch((error) => {
+    console.debug( "fetch", make_url(url, path, query), (options));
+    let response = await fetch(make_url(url, path, query), (options))
+    .then((response) => {
+        console.log(response)
+        return response
+    })
+    .catch((error) => {
         console.debug(url, path, query, make_url(url, path, query), (options));
         console.debug(error);
         return {name: "Network Error", status: 9000}

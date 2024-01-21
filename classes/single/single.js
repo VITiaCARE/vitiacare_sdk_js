@@ -203,6 +203,10 @@ async loadData(obj_id, after_load_hook=null) {
   }
 
   async create(object_to_create, after_load_hook=null ){
+    return await this.post(object_to_create, after_load_hook=null)
+  }
+
+  async post(object_to_create, after_load_hook=null ){
     await this.send_request('POST', `${this.obj_type}`, object_to_create);
     switch(this.response.status) {
       case 200:
@@ -289,7 +293,7 @@ async loadData(obj_id, after_load_hook=null) {
 
   async checkStatus(attributes=null) {
     if(this.ready !== true) return {error: true, error_dec: 'Service not ready. Did you prepare() it first?', err_code: this.error_codes.NOT_READY};
-    if(this.schema === []) await this.loadSchema();
+    if(this.schema == []) await this.loadSchema();
     let validation_list = this.schema.filter((e) => this.conditionalDisplay(e.conditional));
     let compare_obj = Object.assign(this.value);
     let val_type = 'global';

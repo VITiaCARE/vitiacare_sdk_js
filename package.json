@@ -1,6 +1,6 @@
 {
   "name": "@vitiacare/vitiacare_sdk_js",
-  "version": "2.1.0alpha13",
+  "version": "2.1.0alpha15",
   "description": "SDK to connect js-based apps to Vitia's Health API",
   "main": "index.js",
   "type": "module",
