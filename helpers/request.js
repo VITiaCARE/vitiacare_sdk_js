@@ -1,4 +1,4 @@
-
+import 'react-native-get-random-values';
 function make_url(base, path=[], query={}) {
     var url;
     var url_base = base;
@@ -24,6 +24,10 @@ function make_url(base, path=[], query={}) {
 
 async function make_request(url = '', path='', query={}, method= 'GET', payload=null, headers={}, send_as_form = false) {
     let options = {method: method, headers:headers}
+    const { v4: uuidv4 } = require('uuid');
+    let id = uuidv4();
+    Object.assign(headers, {'REQUEST-ID':id})
+    console.debug( "fetch", id, make_url(url, path, query), (options));
     if(!['GET','HEAD'].includes(method)) {
         // if(send_as_form === true) {
         //     options.body = payload
@@ -31,15 +35,13 @@ async function make_request(url = '', path='', query={}, method= 'GET', payload=
             options.body = JSON.stringify(payload)
         // }
     }
-    console.debug( "fetch", make_url(url, path, query), (options));
     let response = await fetch(make_url(url, path, query), (options))
     .then((response) => {
-        console.log(response)
+        console.debug( "RESPONSE", id, response);
         return response
     })
     .catch((error) => {
-        console.debug(url, path, query, make_url(url, path, query), (options));
-        console.debug(error);
+        console.debug("ERROR", id, error);
         return {name: "Network Error", status: 9000}
     })
     return response
@@ -50,4 +52,4 @@ async function make_request_from_object(config){
     return response;
 }
 
-module.exports = { make_url, make_request, make_request_from_object }
+export default { make_url, make_request, make_request_from_object }

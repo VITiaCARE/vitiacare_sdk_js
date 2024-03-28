@@ -1,4 +1,4 @@
-const { make_url, make_request, make_request_from_object } = require('./request')
+const { make_url, make_request, make_request_from_object } = require('./request').default
 const data = require('../package.json' )
 class Interface{
     constructor(host, auth){

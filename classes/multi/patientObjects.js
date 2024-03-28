@@ -11,6 +11,7 @@ class patientObjects extends vitiaMultiObject {
 
   setPatientId(patientId) {
     this.patientId=patientId;
+    this.set_user_id(patientId);
     
   }
   getPatientId() {

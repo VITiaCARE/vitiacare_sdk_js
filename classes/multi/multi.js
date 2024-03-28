@@ -1,5 +1,5 @@
 const { vitiaObject } = require('@vitiacare/vitiacare_sdk_js/classes/single/single');
-const { make_request_from_object } = require('@vitiacare/vitiacare_sdk_js/helpers/request');
+const { make_request_from_object } = require('@vitiacare/vitiacare_sdk_js/helpers/request').default;
 const { Interface } = require('@vitiacare/vitiacare_sdk_js/helpers/interface')
 
 class vitiaMultiObject extends Interface {
@@ -49,7 +49,7 @@ class vitiaMultiObject extends Interface {
 
   set_user_id(user_id) {
     this.user_id = user_id;
-    this.update_headers({ 'UserId': user_id })
+    this.update_headers({ 'User-Id': user_id })
   }
 
   set_relation_id(rel_id) {

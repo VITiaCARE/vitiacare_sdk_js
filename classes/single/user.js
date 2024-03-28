@@ -229,7 +229,9 @@ export class User extends vitiaObject {
   
     async getAwards(user_id=null, awardsIds = null){
       let userid = (user_id !== null) ? user_id : this.user_id;
-
+      if(awardsIds == null || awardsIds == undefined || !awardsIds || awardsIds.length <= 0){ 
+        return [];
+      }
       await this.send_request('GET', `loyalty/awards/${userid}`, {}, {awardsIds:awardsIds.join(',')});
       switch (this.response.status) {
         case 200:

@@ -90,6 +90,16 @@ const { Question }  = require('@vitiacare/vitiacare_sdk_js/classes/single/questi
 
 const { QuestionAnswer }  = require('@vitiacare/vitiacare_sdk_js/classes/single/questionAnswer')
 
+const { MealRecord }  = require('@vitiacare/vitiacare_sdk_js/classes/single/mealRecord')
+
+const { WorkoutSession }  = require('@vitiacare/vitiacare_sdk_js/classes/single/workoutSession')
+
+const { List }  = require('@vitiacare/vitiacare_sdk_js/classes/single/list')
+
+const { UserList }  = require('@vitiacare/vitiacare_sdk_js/classes/single/userList')
+
+const { UserListAnswer }  = require('@vitiacare/vitiacare_sdk_js/classes/single/userListAnswer')
+
 const {
     vitiaMultiObject,
     CommunicationPreferences,
@@ -138,7 +148,16 @@ const { Appointments } = require('@vitiacare/vitiacare_sdk_js/classes/multi/appo
 
 const { ActionFlows }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/actionFlow')
 
+const { MealRecords }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/mealRecord')
+
+const { WorkoutSessions }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/workoutSession')
+
+const { Catalogues }  = require('@vitiacare/vitiacare_sdk_js/classes/support/catalogues')
+
+const { Notifications }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/notification')
+
 module.exports = {
+  Catalogues,
     Diagnostics,
     Message,
     Messages,
@@ -195,5 +214,13 @@ module.exports = {
     ActionFlow,
     ActionFlows,
     Question,
-    QuestionAnswer
+    QuestionAnswer,
+    MealRecord,
+    MealRecords,
+    WorkoutSession,
+    WorkoutSessions,
+    Notifications,
+    UserList,
+    UserListAnswer,
+    List
   }

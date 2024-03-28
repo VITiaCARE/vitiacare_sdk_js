@@ -1,4 +1,4 @@
-const { make_request_from_object } = require('../../helpers/request');
+const { make_request_from_object } = require('../../helpers/request').default;
 const { getLocation } = require('../../functions/user_properties')
 const { Interface } = require('../../helpers/interface')
 
@@ -72,7 +72,7 @@ class vitiaObject extends Interface{
 
   set_user_id(user_id) {
     this.user_id = user_id;
-    this.update_headers({'UserId':user_id})
+    this.update_headers({ 'User-Id': user_id })
   }
 
   setForceSync(force) {

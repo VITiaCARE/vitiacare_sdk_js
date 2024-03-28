@@ -9,6 +9,7 @@ class patientObject extends vitiaObject{
 
   setPatientId(patientId) {
     this.patientId=patientId;
+    this.set_user_id(patientId);
     
   }
   getPatientId() {
