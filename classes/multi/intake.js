@@ -9,6 +9,14 @@ export class Intakes extends patientObjects {
     this.set_type('intake');
   }
 
+  async getIntakesFromPrescription(prescription=null, options = {}, add = false) {
+    var search_params = options;
+    Object.assign(search_params, { prescription:prescription });
+    await this.loadData(search_params, add);
+    return this.value;
+  }
+  
+
 
 
 }

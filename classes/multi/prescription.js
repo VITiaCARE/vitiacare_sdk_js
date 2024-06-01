@@ -12,7 +12,15 @@ export class Prescriptions extends patientObjects {
     var search_params = options;
     if(date_from != null) search_params['min_date'] = date_from;
     if(date_to != null) search_params['max_date'] = date_to;
-    if(date_to != null) search_params['doctor_id'] = doctorId;
+    if(doctorId != null) search_params['doctor_id'] = doctorId;
+    await this.loadData(search_params, add);
+    return this.value;
+  }
+
+  async getPatientCurrentPrescriptions(doctorId=null, options = {}, add = false) {
+    var search_params = options;
+    search_params['current'] = true;
+    if(doctorId != null) search_params['doctor_id'] = doctorId;
     await this.loadData(search_params, add);
     return this.value;
   }

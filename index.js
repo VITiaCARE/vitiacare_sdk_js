@@ -100,6 +100,8 @@ const { UserList }  = require('@vitiacare/vitiacare_sdk_js/classes/single/userLi
 
 const { UserListAnswer }  = require('@vitiacare/vitiacare_sdk_js/classes/single/userListAnswer')
 
+const { Reward }  = require('@vitiacare/vitiacare_sdk_js/classes/single/reward')
+
 const {
     vitiaMultiObject,
     CommunicationPreferences,
@@ -155,6 +157,8 @@ const { WorkoutSessions }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/
 const { Catalogues }  = require('@vitiacare/vitiacare_sdk_js/classes/support/catalogues')
 
 const { Notifications }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/notification')
+
+const { Rewards }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/reward')
 
 module.exports = {
   Catalogues,
@@ -222,5 +226,7 @@ module.exports = {
     Notifications,
     UserList,
     UserListAnswer,
-    List
-  }
+    List,
+    Reward,
+    Rewards
+    }

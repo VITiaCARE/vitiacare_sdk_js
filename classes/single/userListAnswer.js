@@ -26,4 +26,14 @@ export class UserListAnswer extends patientObject {
     }
     await this.post(object_to_create,after_load_hook);
   }
+
+  async updateAnswer(answerId, date, time, items, context='', after_load_hook=null ){
+    let object_to_update = {
+      date: date,
+      time: time, 
+      items: items,
+      answer_context: context
+    }
+    await this.update(answerId, object_to_update,after_load_hook);
+  }
 }

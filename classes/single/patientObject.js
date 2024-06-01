@@ -70,8 +70,8 @@ async loadData(obj_id, after_load_hook=null) {
         this.response.error = false;
         await this.response.json().then((j) => {
           this.set_id(j.obj_id);
-          this.setEvent((j.event_id) ? j.event_id : '');
-          this.setAwards((j.awards) ? j.awards : '');
+          this.setEvent((j.event_id) ? j.event_id : []);
+          this.setAwards((j.awards) ? j.awards : []);
         });
         if(after_load_hook !== null) after_load_hook(this.value);
         break;

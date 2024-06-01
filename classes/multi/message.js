@@ -9,7 +9,7 @@ export class Messages extends patientObjects {
   }
 
   async get(counterpartId, startDate=null, endDate=null){
-    return await this.loadData({counterpart_id:counterpartId, min_date:startDate, max_date:endDate }, true).then(() => this.get_data()).catch(() => []);
+    return await this.loadData({counterpart_id:counterpartId, min_date:startDate, max_date:endDate }, true, null, 100, "date_created DESC", 100).then(() => this.get_data()).catch(() => []);
   }
 
 
