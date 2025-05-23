@@ -1,4 +1,4 @@
-function toUTCDateFromISO(dateString, timezonediff_mins = null) {
+export function toUTCDateFromISO(dateString, timezonediff_mins = null) {
     if (timezonediff_mins === null) timezonediff_mins = new Date().getTimezoneOffset();
     let parts = []
     if(dateString.length >= 4) {
@@ -28,6 +28,3 @@ function toUTCDateFromISO(dateString, timezonediff_mins = null) {
     return new Date(base_date.getTime() + offset_date.getTime());
 }
 
-
-
-module.exports = { toUTCDateFromISO }

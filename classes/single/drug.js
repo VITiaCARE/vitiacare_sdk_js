@@ -1,4 +1,5 @@
 import { vitiaObject } from '@vitiacare/vitiacare_sdk_js/classes/single/single';
+import { Drugs } from '@vitiacare/vitiacare_sdk_js/classes/multi/drug';
 
 export class Drug extends vitiaObject {
 
@@ -9,7 +10,6 @@ export class Drug extends vitiaObject {
   }
 
   async findByName(name){
-    const { Drugs } = require('../multi/drug');
     let drugs = new Drugs(this.api_url, this.api_key);
     let search_params = {name: name};
     await drugs.loadData(search_params, false);

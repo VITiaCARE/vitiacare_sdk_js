@@ -1,5 +1,5 @@
 
-async function getLocation() {
+export async function getLocation() {
   var loc;
   try{
     if (navigator && navigator !== undefined && navigator.geolocation) {
@@ -15,7 +15,7 @@ async function getLocation() {
   return loc
 }
 
-async function getPosition() {
+export async function getPosition() {
   const options = {
     enableHighAccuracy: true,
     timeout: 5000,
@@ -26,11 +26,11 @@ async function getPosition() {
   });
 }
 
-function makePosition(position) {
+export function makePosition(position) {
   return `${position.coords.latitude},${position.coords.longitude}`;
 }
 
-function makePositionError(error) {
+export function makePositionError(error) {
 switch(error.code) {
   case error.PERMISSION_DENIED:
     return "User denied the request for Geolocation."
@@ -42,5 +42,3 @@ switch(error.code) {
     return "An unknown error occurred."
 }
 }
-
-module.exports = { getLocation }

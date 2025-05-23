@@ -1,6 +1,6 @@
-const { make_url, make_request, make_request_from_object } = require('./request').default
-const data = require('../package.json' )
-class Interface{
+import { make_url, make_request, make_request_from_object } from './request'
+import data from '../package.json'
+export class Interface{
     constructor(host, auth){
         this.auth = auth
         this.host = host
@@ -48,5 +48,3 @@ class Interface{
       return this.response.works;
     }
 }
-
-module.exports = { Interface }

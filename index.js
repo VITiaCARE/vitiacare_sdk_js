@@ -29,7 +29,7 @@ String.prototype.toTitle = function() {
   return this.replace(/(^|\s)\S/g, function(t) { return t.toUpperCase() });
 }
 
-const {
+import {
   vitiaObject,
   
   
@@ -40,69 +40,69 @@ const {
   Profile_Status,
   Treatment_Step,
   Tutorial
-  } =  require('@vitiacare/vitiacare_sdk_js/classes/single/single');
+  } from '@vitiacare/vitiacare_sdk_js/classes/single';
 
   import { IntakeFrequency } from '@vitiacare/vitiacare_sdk_js/classes/single/intakeFrequency';
 
-const { User } = require('@vitiacare/vitiacare_sdk_js/classes/single/user')
+  import { User } from '@vitiacare/vitiacare_sdk_js/classes/single/user'
 
-const { Patient } = require('@vitiacare/vitiacare_sdk_js/classes/single/patient')
+  import { Patient } from '@vitiacare/vitiacare_sdk_js/classes/single/patient'
 
-const { Intake } = require('@vitiacare/vitiacare_sdk_js/classes/single/intake')
+import { Intake } from '@vitiacare/vitiacare_sdk_js/classes/single/intake'
 
-const { Prescription } = require('@vitiacare/vitiacare_sdk_js/classes/single/prescription')
+import { Prescription } from '@vitiacare/vitiacare_sdk_js/classes/single/prescription'
 
-const { Treatment } = require('@vitiacare/vitiacare_sdk_js/classes/single/treatment')
+import { Treatment } from '@vitiacare/vitiacare_sdk_js/classes/single/treatment'
 
-const { Relation } = require('@vitiacare/vitiacare_sdk_js/classes/single/relation')
+import { Relation } from '@vitiacare/vitiacare_sdk_js/classes/single/relation'
 
-const { Message } = require('@vitiacare/vitiacare_sdk_js/classes/single/message')
+import { Message } from '@vitiacare/vitiacare_sdk_js/classes/single/message'
 
-const { Referral } = require('@vitiacare/vitiacare_sdk_js/classes/single/referral')
+import { Referral } from '@vitiacare/vitiacare_sdk_js/classes/single/referral'
 
-const { Record } = require('@vitiacare/vitiacare_sdk_js/classes/single/record')
+import { Record } from '@vitiacare/vitiacare_sdk_js/classes/single/record'
 
-const { Vital } = require('@vitiacare/vitiacare_sdk_js/classes/single/vital')
+import { Vital } from '@vitiacare/vitiacare_sdk_js/classes/single/vital'
 
-const { Measurement } = require('@vitiacare/vitiacare_sdk_js/classes/single/measurement')
+import { Measurement } from '@vitiacare/vitiacare_sdk_js/classes/single/measurement'
 
-const { Drug } = require('@vitiacare/vitiacare_sdk_js/classes/single/drug')
+import { Drug } from '@vitiacare/vitiacare_sdk_js/classes/single/drug'
 
-const { FileObj } = require('@vitiacare/vitiacare_sdk_js/classes/single/file')
+import { FileObj } from '@vitiacare/vitiacare_sdk_js/classes/single/file'
 
-const { Disease } = require('@vitiacare/vitiacare_sdk_js/classes/single/disease')
+import { Disease } from '@vitiacare/vitiacare_sdk_js/classes/single/disease'
 
-const { Diagnosis } = require('@vitiacare/vitiacare_sdk_js/classes/single/diagnosis')
+import { Diagnosis } from '@vitiacare/vitiacare_sdk_js/classes/single/diagnosis'
 
-const { Ecommerce } = require('@vitiacare/vitiacare_sdk_js/classes/single/ecommerce')
+import { Ecommerce } from '@vitiacare/vitiacare_sdk_js/classes/single/ecommerce'
 
-const { Purchase } = require('@vitiacare/vitiacare_sdk_js/classes/single/purchase')
+import { Purchase } from '@vitiacare/vitiacare_sdk_js/classes/single/purchase'
 
-const { Address } = require('@vitiacare/vitiacare_sdk_js/classes/single/address')
+import { Address } from '@vitiacare/vitiacare_sdk_js/classes/single/address'
 
-const { ProfileStatus }  = require('@vitiacare/vitiacare_sdk_js/classes/single/profileStatus')
+import { ProfileStatus }  from '@vitiacare/vitiacare_sdk_js/classes/single/profileStatus'
 
-const { Appointment }  = require('@vitiacare/vitiacare_sdk_js/classes/single/appointment')
+import { Appointment }  from '@vitiacare/vitiacare_sdk_js/classes/single/appointment'
 
-const { ActionFlow }  = require('@vitiacare/vitiacare_sdk_js/classes/single/actionFlow')
+import { ActionFlow }  from '@vitiacare/vitiacare_sdk_js/classes/single/actionFlow'
 
-const { Question }  = require('@vitiacare/vitiacare_sdk_js/classes/single/question')
+import { Question }  from '@vitiacare/vitiacare_sdk_js/classes/single/question'
 
-const { QuestionAnswer }  = require('@vitiacare/vitiacare_sdk_js/classes/single/questionAnswer')
+import { QuestionAnswer }  from '@vitiacare/vitiacare_sdk_js/classes/single/questionAnswer'
 
-const { MealRecord }  = require('@vitiacare/vitiacare_sdk_js/classes/single/mealRecord')
+import { MealRecord }  from '@vitiacare/vitiacare_sdk_js/classes/single/mealRecord'
 
-const { WorkoutSession }  = require('@vitiacare/vitiacare_sdk_js/classes/single/workoutSession')
+import { WorkoutSession }  from '@vitiacare/vitiacare_sdk_js/classes/single/workoutSession'
 
-const { List }  = require('@vitiacare/vitiacare_sdk_js/classes/single/list')
+import { List }  from '@vitiacare/vitiacare_sdk_js/classes/single/list'
 
-const { UserList }  = require('@vitiacare/vitiacare_sdk_js/classes/single/userList')
+import { UserList }  from '@vitiacare/vitiacare_sdk_js/classes/single/userList'
 
-const { UserListAnswer }  = require('@vitiacare/vitiacare_sdk_js/classes/single/userListAnswer')
+import { UserListAnswer }  from '@vitiacare/vitiacare_sdk_js/classes/single/userListAnswer'
 
-const { Reward }  = require('@vitiacare/vitiacare_sdk_js/classes/single/reward')
+import { Reward }  from '@vitiacare/vitiacare_sdk_js/classes/single/reward'
 
-const {
+import {
     vitiaMultiObject,
     CommunicationPreferences,
     VitalsPresets,
@@ -112,56 +112,55 @@ const {
     Treatment_Steps,
     
     Tutorials
-  } =  require('@vitiacare/vitiacare_sdk_js/classes/multi/multi');
+  } from '@vitiacare/vitiacare_sdk_js/classes/multi';
   
-const { Drugs } = require('@vitiacare/vitiacare_sdk_js/classes/multi/drug')
+import { Drugs } from '@vitiacare/vitiacare_sdk_js/classes/multi/drug'
 
-const { Diseases } = require('@vitiacare/vitiacare_sdk_js/classes/multi/disease')
+import { Diseases } from '@vitiacare/vitiacare_sdk_js/classes/multi/disease'
 
-const { Intakes } = require('@vitiacare/vitiacare_sdk_js/classes/multi/intake')
+import { Intakes } from '@vitiacare/vitiacare_sdk_js/classes/multi/intake'
 
-const { Relations } = require('@vitiacare/vitiacare_sdk_js/classes/multi/relation')
+import { Relations } from '@vitiacare/vitiacare_sdk_js/classes/multi/relation'
 
-const { Prescriptions } = require('@vitiacare/vitiacare_sdk_js/classes/multi/prescription')
+import { Prescriptions } from '@vitiacare/vitiacare_sdk_js/classes/multi/prescription'
 
-const { Messages } = require('@vitiacare/vitiacare_sdk_js/classes/multi/message')
+import { Messages } from '@vitiacare/vitiacare_sdk_js/classes/multi/message'
 
-const { Users } = require('@vitiacare/vitiacare_sdk_js/classes/multi/user')
+import { Users } from '@vitiacare/vitiacare_sdk_js/classes/multi/user'
 
-const { Referrals } = require('@vitiacare/vitiacare_sdk_js/classes/multi/referral')
+import { Referrals } from '@vitiacare/vitiacare_sdk_js/classes/multi/referral'
 
-const { Records } = require('@vitiacare/vitiacare_sdk_js/classes/multi/record')
+import { Records } from '@vitiacare/vitiacare_sdk_js/classes/multi/record'
 
-const { Treatments } = require('@vitiacare/vitiacare_sdk_js/classes/multi/treatment')
+import { Treatments } from '@vitiacare/vitiacare_sdk_js/classes/multi/treatment'
 
-const { Measurements } = require('@vitiacare/vitiacare_sdk_js/classes/multi/measurement')
+import { Measurements } from '@vitiacare/vitiacare_sdk_js/classes/multi/measurement'
 
-const { Vitals } = require('@vitiacare/vitiacare_sdk_js/classes/multi/vital')
+import { Vitals } from '@vitiacare/vitiacare_sdk_js/classes/multi/vital'
 
-const { IntakeFrequencies } = require('@vitiacare/vitiacare_sdk_js/classes/multi/intakeFrequency')
+import { IntakeFrequencies } from '@vitiacare/vitiacare_sdk_js/classes/multi/intakeFrequency'
 
-const { Diagnostics } = require('@vitiacare/vitiacare_sdk_js/classes/multi/diagnosis')
+import { Diagnostics } from '@vitiacare/vitiacare_sdk_js/classes/multi/diagnosis'
 
-const { Addresses } = require('@vitiacare/vitiacare_sdk_js/classes/multi/address')
+import { Addresses } from '@vitiacare/vitiacare_sdk_js/classes/multi/address'
 
-const { Purchases } = require('@vitiacare/vitiacare_sdk_js/classes/multi/purchase')
+import { Purchases } from '@vitiacare/vitiacare_sdk_js/classes/multi/purchase'
 
-const { Appointments } = require('@vitiacare/vitiacare_sdk_js/classes/multi/appointment')
+import { Appointments } from '@vitiacare/vitiacare_sdk_js/classes/multi/appointment'
 
-const { ActionFlows }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/actionFlow')
+import { ActionFlows }  from '@vitiacare/vitiacare_sdk_js/classes/multi/actionFlow'
 
-const { MealRecords }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/mealRecord')
+import { MealRecords }  from '@vitiacare/vitiacare_sdk_js/classes/multi/mealRecord'
 
-const { WorkoutSessions }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/workoutSession')
+import { WorkoutSessions }  from '@vitiacare/vitiacare_sdk_js/classes/multi/workoutSession'
 
-const { Catalogues }  = require('@vitiacare/vitiacare_sdk_js/classes/support/catalogues')
+import { Catalogues }  from '@vitiacare/vitiacare_sdk_js/classes/support/catalogues'
 
-const { Notifications }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/notification')
+import { Notifications }  from '@vitiacare/vitiacare_sdk_js/classes/multi/notification'
 
-const { Rewards }  = require('@vitiacare/vitiacare_sdk_js/classes/multi/reward')
+import { Rewards }  from '@vitiacare/vitiacare_sdk_js/classes/multi/reward'
 
-module.exports = {
-  Catalogues,
+export {
     Diagnostics,
     Message,
     Messages,
@@ -228,5 +227,6 @@ module.exports = {
     UserListAnswer,
     List,
     Reward,
-    Rewards
+  Rewards,
+    Catalogues
     }

@@ -1,6 +1,6 @@
 import { vitiaObject } from '@vitiacare/vitiacare_sdk_js/classes/single/single';
 
-class patientObject extends vitiaObject{  
+export class patientObject extends vitiaObject{  
 
   constructor(patientId, api_url, api_key){
     super(api_url, api_key)
@@ -118,7 +118,3 @@ async loadData(obj_id, after_load_hook=null) {
 
 }
 
-
-module.exports = {
-  patientObject
-}

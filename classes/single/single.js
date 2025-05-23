@@ -1,8 +1,8 @@
-const { make_request_from_object } = require('../../helpers/request').default;
-const { getLocation } = require('../../functions/user_properties')
-const { Interface } = require('../../helpers/interface')
+import { make_request_from_object } from '../../helpers/request';
+import { getLocation } from '../../functions/user_properties'
+import { Interface } from '../../helpers/interface'
 
-class vitiaObject extends Interface{  
+export class vitiaObject extends Interface{  
 
   constructor(api_url, api_key){
     if(api_url===null) {
@@ -508,7 +508,7 @@ async loadData(obj_id, after_load_hook=null) {
 }
 
 
-class Translation extends vitiaObject {
+export class Translation extends vitiaObject {
 
   constructor (api_url=null, api_key=null) {
     super(api_url, api_key);
@@ -521,7 +521,7 @@ class Translation extends vitiaObject {
   }
 }
 
-class CommunicationPreference extends vitiaObject {
+export class CommunicationPreference extends vitiaObject {
 
   constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
     super({api_url:api_url, api_key:api_key,obj_type:"communication_preference", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
@@ -533,7 +533,7 @@ class CommunicationPreference extends vitiaObject {
 }
 
 
-class VitalsPreset extends vitiaObject {
+export class VitalsPreset extends vitiaObject {
 
   constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
     super({api_url:api_url, api_key:api_key,obj_type:"vitals_preset", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
@@ -543,7 +543,7 @@ class VitalsPreset extends vitiaObject {
     await super.prepare({obj_type:"vitals_preset", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 }
-class FeedbackReport extends vitiaObject {
+export class FeedbackReport extends vitiaObject {
 
   constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
     super({api_url:api_url, api_key:api_key,obj_type:"feedback", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
@@ -553,7 +553,7 @@ class FeedbackReport extends vitiaObject {
     await super.prepare({obj_type:"feedback", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 }
-class UserTool extends vitiaObject {
+export class UserTool extends vitiaObject {
 
   constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
     super({api_url:api_url, api_key:api_key,obj_type:"user_tool", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
@@ -564,7 +564,7 @@ class UserTool extends vitiaObject {
   }
 }
 
-class Profile_Status extends vitiaObject {
+export class Profile_Status extends vitiaObject {
 
   constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
     super({api_url:api_url, api_key:api_key,obj_type:"profile_status", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
@@ -593,7 +593,7 @@ class Profile_Status extends vitiaObject {
   }
 }
 
-class Treatment_Step extends vitiaObject {
+export class Treatment_Step extends vitiaObject {
 
   constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
     super({api_url:api_url, api_key:api_key,obj_type:"intake_step", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
@@ -603,7 +603,7 @@ class Treatment_Step extends vitiaObject {
     await super.prepare({obj_type:"intake_step", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type});
   }
 }
-class Intake_Frequency extends vitiaObject {
+export class Intake_Frequency extends vitiaObject {
 
   constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
     super({api_url:api_url, api_key:api_key,obj_type:"intake_frequency", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
@@ -654,7 +654,7 @@ class Intake_Frequency extends vitiaObject {
   }
 }
 
-class Tutorial extends vitiaObject {
+export class Tutorial extends vitiaObject {
 
   constructor ({api_url="", api_key="",user_token="", user_id="", search_params={}, file_type=""}={}) {
     super({api_url:api_url, api_key:api_key,obj_type:"tutorial", user_token:user_token, user_id:user_id, search_params:search_params, file_type:file_type})
@@ -688,18 +688,4 @@ class Tutorial extends vitiaObject {
         }
       }).catch(() => "Error!");
   }
-}
-
-
-module.exports = {
-  vitiaObject,
-  CommunicationPreference,
-  VitalsPreset,
-  FeedbackReport,
-  UserTool,
-  Profile_Status,
-  Treatment_Step,
-  Intake_Frequency,
-  Tutorial,
-  Translation
 }

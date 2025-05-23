@@ -1,55 +1,63 @@
-import 'react-native-get-random-values';
-function make_url(base, path=[], query={}) {
-    var url;
-    var url_base = base;
-    var url_path = '';
-    var url_query = '';
-    if(path && Array.isArray(path) && path.length > 0) url_path = path.join('/');
-    else if (path && (typeof path === 'string' || path instanceof String)) url_path = path
-    else path = '';
-    if(url_base.endsWith('/')) url_base = url_base.substring(0,url_base.length-1) 
-    if(url_path.startsWith('/')) url_path = url_path.substring(1, url_path.length)
-    if(query && query != {}) {
-        try {
-            let query_array = Object.entries(query).filter(([k,v]) => k!=null && v!=null).map(([k,v]) => `${k}=${v}`)
-            url_query = query_array.join('&') 
-        } catch { 
-            url_query = '' 
-        }
+
+export function make_url(base, path = [], query = {}) {
+  var url;
+  var url_base = base;
+  var url_path = '';
+  var url_query = '';
+  if (path && Array.isArray(path) && path.length > 0) url_path = path.join('/');
+  else if (path && (typeof path === 'string' || path instanceof String)) url_path = path
+  else path = '';
+  if (url_base.endsWith('/')) url_base = url_base.substring(0, url_base.length - 1)
+  if (url_path.startsWith('/')) url_path = url_path.substring(1, url_path.length)
+  if (query && query != {}) {
+    try {
+      let query_array = Object.entries(query).filter(([k, v]) => k != null && v != null).map(([k, v]) => `${k}=${v}`)
+      url_query = query_array.join('&')
+    } catch {
+      url_query = ''
     }
-    url = `${url_base}/${url_path}`
-    if(url_query !== '') url = `${url}?${url_query}`
-    return url;
+  }
+  url = `${url_base}/${url_path}`
+  if (url_query !== '') url = `${url}?${url_query}`
+  return url;
 }
 
-async function make_request(url = '', path='', query={}, method= 'GET', payload=null, headers={}, send_as_form = false) {
-    let options = {method: method, headers:headers}
-    const { v4: uuidv4 } = require('uuid');
-    let id = uuidv4();
-    Object.assign(headers, {'REQUEST-ID':id})
-    console.debug( "fetch", id, make_url(url, path, query), (options));
-    if(!['GET','HEAD'].includes(method)) {
-        // if(send_as_form === true) {
-        //     options.body = payload
-        // }else {
-            options.body = JSON.stringify(payload)
-        // }
-    }
-    let response = await fetch(make_url(url, path, query), (options))
+
+
+export async function make_request(url = '', path = '', query = {}, method = 'GET', payload = null, headers = {}, send_as_form = false) {
+  let options = { method: method, headers: headers }
+  var id;
+  try {
+    const get_uuid = require('@vitiacare/vitiacare_sdk_js/helpers/uuid_helper')
+    id = get_uuid()
+  } catch {
+    id = Array(6).map(v => String(Math.round(Math.random() * 10000))).join('-')
+  }
+  Object.assign(headers, { 'REQUEST-ID': id })
+
+  if (!['GET', 'HEAD'].includes(method)) {
+    // if(send_as_form === true) {
+    //     options.body = payload
+    // }else {
+    options.body = JSON.stringify(payload)
+    // }
+  }
+  let response = await fetch(make_url(url, path, query), (options))
     .then((response) => {
-        console.debug( "RESPONSE", id, response);
-        return response
+      if (!response.ok) {
+        console.debug("RESPONSE", id, response, make_url(url, path, query));
+      }
+
+      return response
     })
     .catch((error) => {
-        console.debug("ERROR", id, error);
-        return {name: "Network Error", status: 9000}
+      console.debug("ERROR", id, error, make_url(url, path, query));
+      return { name: "Network Error", status: 9000 }
     })
-    return response
+  return response
 }
 
-async function make_request_from_object(config){
-    let response = await make_request(url=config.url, path=config.path, query=config.query, method=config.method, payload=config.data, headers=config.headers);
-    return response;
+export async function make_request_from_object(config) {
+  let response = await make_request(url = config.url, path = config.path, query = config.query, method = config.method, payload = config.data, headers = config.headers);
+  return response;
 }
-
-export default { make_url, make_request, make_request_from_object }

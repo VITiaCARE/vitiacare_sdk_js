@@ -1,7 +1,7 @@
 import { vitiaMultiObject } from '@vitiacare/vitiacare_sdk_js/classes/multi/multi';
 import { patientObject } from '@vitiacare/vitiacare_sdk_js/classes/single/patientObject';
 
-class patientObjects extends vitiaMultiObject {
+export class patientObjects extends vitiaMultiObject {
 
 
   constructor(patientId, api_url, api_key){
@@ -102,7 +102,4 @@ class patientObjects extends vitiaMultiObject {
       }
     });
   }
-}
-module.exports = {
-  patientObjects
 }
