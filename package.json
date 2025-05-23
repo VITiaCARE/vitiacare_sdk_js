@@ -1,7 +1,7 @@
 {
   "name": "@vitiacare/vitiacare_sdk_js",
-  "version": "2.2.11",
-  "description": "SDK to connect js-based apps to Vitia's Health API",
+  "version": "3.0.0",
+  "description": "SDK to connect React Native apps to Vitia's Health API",
   "main": "index.js",
   "type": "module",
   "scripts": {
